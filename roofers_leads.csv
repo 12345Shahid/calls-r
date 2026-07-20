@@ -1,0 +1,16 @@
+Timestamp,Status,Email,WhatsApp,Notes
+2026-07-01T15:13:14.211556,test_verified,demo_roofer@roofing.com,+15550199999,Captured via LiveKit Voice AI Agent
+2026-07-03T14:57:42.838233,test_verified,demo_roofer@roofing.com,+15550199999,Captured via LiveKit Voice AI Agent
+2026-07-08T18:26:55.758782,demo_link_agreed,Mike@MikesRoofingTX.com,,Captured via LiveKit Voice AI Agent
+2026-07-08T18:27:27.754060,demo_link_agreed,Mike@MikesRoofingTX.com,,Captured via LiveKit Voice AI Agent
+2026-07-11T06:23:11.713018,meeting_booked,mike@mikesroofingtx.com,null,Captured via LiveKit Voice AI Agent
+2026-07-11T06:23:23.330000,meeting_booked,mike@mikesroofingtx.com,null,Captured via LiveKit Voice AI Agent
+2026-07-11T06:23:25.923086,meeting_booked,mike@mikesroofingtx.com,null,Captured via LiveKit Voice AI Agent
+2026-07-11T06:23:35.872105,meeting_booked,mike@mikesroofingtx.com,null,Captured via LiveKit Voice AI Agent
+2026-07-17T12:01:02.745370,whatsapp_only,null,+17068130213,Captured via LiveKit Voice AI Agent | Appointment: null
+2026-07-17T12:01:10.627333,meeting_booked,,+17068130213,Captured via LiveKit Voice AI Agent | Appointment: Thursday at 2 PM Central
+2026-07-17T12:01:16.416372,meeting_booked,,+17068130213,Captured via LiveKit Voice AI Agent | Appointment: Thursday at 2 PM Central
+2026-07-17T12:02:16.704500,demo_sent,,+17068130213,Captured via LiveKit Voice AI Agent
+2026-07-17T12:02:17.259995,whatsapp_received,,+17068130213,Captured via LiveKit Voice AI Agent
+2026-07-17T12:02:36.102019,meeting_booked,,+17068130213,Captured via LiveKit Voice AI Agent | Appointment: Thursday at 2 PM Central
+2026-07-17T12:02:38.440947,meeting_booked,,+17068130213,Captured via LiveKit Voice AI Agent | Appointment: Thursday at 2 PM Central

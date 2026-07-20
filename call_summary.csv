@@ -1,0 +1,26 @@
+Timestamp,PhoneNumber,CompanyName,PickedUp,Duration,Outcome,TranscriptTurns
+2026-07-11T06:23:48.329988,+17068130213,Test Roofer Company (Test Contact),Yes,3m31s,disconnected_early,17
+2026-07-16T17:58:44.567802,+14694616899,Test Alex (Test Contact),Yes,0m19s,disconnected_early,2
+2026-07-17T07:17:44.885808,,Test Roofer (interested),Yes,0m20s,disconnected_early,2
+2026-07-17T09:54:22.210813,,Test Roofer (interested),No,0m03s,disconnected_early,1
+2026-07-17T09:59:58.796545,,Test Roofer (interested),No,0m05s,disconnected_early,1
+2026-07-17T10:23:21.857103,,,No,0m07s,disconnected_early,1
+2026-07-17T10:31:44.037851,,,Yes,4m57s,disconnected_early,6
+2026-07-17T11:36:03.926897,,,No,0m09s,disconnected_early,0
+2026-07-17T11:41:01.910433,+14694616899,Phone +14694616899,No,0m08s,disconnected_early,0
+2026-07-17T11:51:21.709017,+14694616899,Phone +14694616899,No,0m15s,disconnected_early,0
+2026-07-17T11:52:37.362237,+14694616899,Phone +14694616899,No,0m16s,disconnected_early,0
+2026-07-17T11:53:56.151269,+14694616899,Phone +14694616899,No,0m15s,disconnected_early,0
+2026-07-17T11:57:41.628617,+14694616899,Phone +14694616899,No,0m16s,disconnected_early,0
+2026-07-17T12:02:43.274758,+14694616899,Phone +14694616899,Yes,0m43s,voicemail_left,8
+2026-07-17T12:09:31.337352,+14694616899,Phone +14694616899,Yes,5m05s,disconnected_early,4
+2026-07-19T18:08:46.721802,,,No,4m50s,disconnected_early,0
+2026-07-19T18:48:21.153352,+19453260478,Phone +19453260478,No,5m07s,disconnected_early,0
+2026-07-19T18:51:21.077017,+19453260478,Phone +19453260478,No,0m16s,disconnected_early,0
+2026-07-19T18:53:32.549226,+19453260478,Phone +19453260478,Yes,5m09s,disconnected_early,2
+2026-07-19T18:55:53.421694,+19453260478,Phone +19453260478,No,0m15s,disconnected_early,0
+2026-07-19T19:00:15.396810,+19453260478,Phone +19453260478,Yes,1m24s,disconnected_early,5
+2026-07-19T19:01:22.663241,+19453260478,Phone +19453260478,Yes,0m32s,voicemail_left,2
+2026-07-19T19:02:34.794388,+19453260478,Phone +19453260478,Yes,0m35s,disconnected_early,2
+2026-07-19T20:08:34.963817,+14694616899,Phone +14694616899,Yes,2m08s,disconnected_early,6
+2026-07-19T20:10:14.451835,+14694616899,Phone +14694616899,Yes,1m13s,disconnected_early,5
