@@ -4,21 +4,21 @@
       "id": "line_1",
       "phone_number": "+14694616899",
       "sip_trunk_id": "ST_PRdJLAHpjkg3",
-      "display_name": "Alex Line 1",
+      "display_name": "Sarah Line 1",
       "cooling_seconds": 60
     },
     {
       "id": "line_2",
       "phone_number": "+19453260478",
       "sip_trunk_id": "ST_BUBn4RaWdrDq",
-      "display_name": "Alex Line 2",
+      "display_name": "Sarah Line 2",
       "cooling_seconds": 60
     },
     {
       "id": "line_3",
       "phone_number": "+19453260334",
       "sip_trunk_id": "ST_xbgU3U3JZkCV",
-      "display_name": "Alex Line 3",
+      "display_name": "Sarah Line 3",
       "cooling_seconds": 60
     }
   ]

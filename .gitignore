@@ -5,5 +5,6 @@ __pycache__/
 .DS_Store
 *.log
 api_keys.json
+ALL_UNPUSHED_CREDENTIALS.json
 whatsapp-auto-saver/
 notes/

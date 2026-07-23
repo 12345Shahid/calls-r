@@ -17,12 +17,38 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 LINES_PATH = os.path.join(os.path.dirname(__file__), "phone_lines.json")
 
-# In-memory line state tracking
-_line_states = {}  # {line_id: {"status": "available"|"in_call"|"cooling_down", "busy_since": ts, "cool_until": ts}}
+# File-based line state tracking to share states across dialer and agent worker processes
+STATES_PATH = os.path.join(os.path.dirname(__file__), "phone_line_states.json")
+_line_states = {}  # Kept for compatibility with test suites and external references
 _last_used_index = -1  # For round-robin rotation
 _state_lock = Lock()
 _config_cache = None
 _config_mtime = 0
+
+
+def _load_states() -> dict:
+    """Loads line states from phone_line_states.json, populating _line_states."""
+    global _line_states
+    if not os.path.exists(STATES_PATH):
+        _line_states.clear()
+        return _line_states
+    try:
+        with open(STATES_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            _line_states.clear()
+            _line_states.update(data)
+            return _line_states
+    except Exception:
+        return _line_states
+
+
+def _save_states(states: dict):
+    """Saves line states to phone_line_states.json."""
+    try:
+        with open(STATES_PATH, "w", encoding="utf-8") as f:
+            json.dump(states, f, indent=2)
+    except Exception as e:
+        logging.error(f"❌ Failed to save line states: {e}")
 
 
 def _load_config(force_reload: bool = False) -> dict:
@@ -54,15 +80,19 @@ def get_all_lines() -> list[dict]:
 
 
 def _get_line_state(line_id: str) -> dict:
-    """Gets the current in-memory state of a line."""
-    if line_id not in _line_states:
-        _line_states[line_id] = {"status": "available", "busy_since": None, "cool_until": None}
-    return _line_states[line_id]
+    """Gets the current state of a line from persistent storage."""
+    states = _load_states()
+    if line_id not in states:
+        states[line_id] = {"status": "available", "busy_since": None, "cool_until": None}
+    return states[line_id]
 
 
 def _is_line_available(line_id: str) -> bool:
     """Checks if a line is currently available (not busy, not cooling)."""
-    state = _get_line_state(line_id)
+    states = _load_states()
+    if line_id not in states:
+        states[line_id] = {"status": "available", "busy_since": None, "cool_until": None}
+    state = states[line_id]
 
     if state["status"] == "in_call":
         return False
@@ -72,10 +102,12 @@ def _is_line_available(line_id: str) -> bool:
         if time.time() >= cool_until:
             state["status"] = "available"
             state["cool_until"] = None
+            _save_states(states)
             return True
         return False
 
     return True
+
 
 
 def get_next_available_line() -> dict | None:
@@ -132,9 +164,13 @@ def get_line_for_callback(exclude_line_id: str = None) -> dict | None:
 def mark_line_busy(line_id: str):
     """Marks a line as currently in a call."""
     with _state_lock:
-        state = _get_line_state(line_id)
-        state["status"] = "in_call"
-        state["busy_since"] = time.time()
+        states = _load_states()
+        if line_id not in states:
+            states[line_id] = {}
+        states[line_id]["status"] = "in_call"
+        states[line_id]["busy_since"] = time.time()
+        states[line_id]["cool_until"] = None
+        _save_states(states)
         logging.info(f"🔴 Line {line_id} marked as IN_CALL")
 
 
@@ -146,7 +182,9 @@ def mark_line_available(line_id: str, start_cooldown: bool = True):
         start_cooldown: If True, enters cooling_down state first (default behavior after a call ends)
     """
     with _state_lock:
-        state = _get_line_state(line_id)
+        states = _load_states()
+        if line_id not in states:
+            states[line_id] = {}
         if start_cooldown:
             config = _load_config()
             cooling_seconds = 60  # default
@@ -154,15 +192,17 @@ def mark_line_available(line_id: str, start_cooldown: bool = True):
                 if line["id"] == line_id:
                     cooling_seconds = line.get("cooling_seconds", 60)
                     break
-            state["status"] = "cooling_down"
-            state["cool_until"] = time.time() + cooling_seconds
-            state["busy_since"] = None
+            states[line_id]["status"] = "cooling_down"
+            states[line_id]["cool_until"] = time.time() + cooling_seconds
+            states[line_id]["busy_since"] = None
             logging.info(f"❄️ Line {line_id} entering cooldown ({cooling_seconds}s)")
         else:
-            state["status"] = "available"
-            state["busy_since"] = None
-            state["cool_until"] = None
+            states[line_id]["status"] = "available"
+            states[line_id]["busy_since"] = None
+            states[line_id]["cool_until"] = None
             logging.info(f"🟢 Line {line_id} marked as AVAILABLE")
+        _save_states(states)
+
 
 
 def is_our_number(phone: str) -> bool:

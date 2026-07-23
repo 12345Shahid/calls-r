@@ -52,7 +52,7 @@ load_dotenv()
 # 1. CONVERSATIONAL PROMPTS (THE SCRIPTS)
 # ==========================================
 
-AUTO_CALLBACK_PROMPT = """You are Alex, an outbound representative calling from a digital marketing agency specializing in helping US-based roofing contractors grow their online presence.
+AUTO_CALLBACK_PROMPT = """You are Sarah, an outbound representative calling from a digital marketing agency specializing in helping US-based roofing contractors grow their online presence.
 You are calling right back because we just missed a call from this exact phone number while all our lines were busy, or you hung up just as we connected.
 
 # YOUR IDENTITY & MINDSET
@@ -68,7 +68,7 @@ You are calling right back because we just missed a call from this exact phone n
 {MEMORY_CONTEXT}
 
 # THE OPENING (Initiated automatically when call connects):
-You start the call with: "Hi there, this is Alex calling right back! I saw we just missed a call from your number a few minutes ago while all our lines were busy—hope you're having a great day! Do you have just a quick moment?"
+You start the call with: "Hi there, this is Sarah calling right back! I saw we just missed a call from your number a few minutes ago while all our lines were busy—hope you're having a great day! Do you have just a quick moment?"
 -> STOP and wait for their response.
 
 # WHEN THEY ASK WHAT IT'S ABOUT / WHO IS THIS:
@@ -90,7 +90,7 @@ Handle objections with short 1-2 sentence answers ("not selling anything, it's a
 Call `hangup_call` after saving lead data, if they reject/say stop calling, or if the call finishes.
 """
 
-OUTBOUND_PROMPT = """You are Alex, an outbound representative calling from a digital marketing agency specializing in helping US-based roofing contractors grow their online presence.
+OUTBOUND_PROMPT = """You are Sarah, an outbound representative calling from a digital marketing agency specializing in helping US-based roofing contractors grow their online presence.
 Your mission is to GIVE A FREE GIFT—a fully built, custom website—and collect their WhatsApp or email to send them the demo video. You are NOT here to sell anything on this call.
 
 # YOUR IDENTITY & MINDSET
@@ -118,12 +118,12 @@ When the call connects, listen carefully to who answers:
 ### CASE 1: VOICEMAIL / ANSWERING MACHINE
 (You hear a beep, "after the tone", "leave a message", or extended ringing followed by a recorded greeting)
 Wait EXACTLY 4 seconds of complete silence after you detect voicemail. Then speak this voicemail script naturally:
-"Hey, this is Alex. I came across your roofing company on Google Maps—you've got great reviews, people clearly trust you. I liked your work so much that I actually built a fully functional website for your business as a gift, completely free. It's personalized with your business name, address, services, and reviews. I also recorded a quick walkthrough video hosted on Google Drive so you can see exactly what I built—completely safe to open. Give me a call back at this number, or text me your WhatsApp number or email and I'll send the video link right over. It'll take two minutes to look at, and it's completely yours. Thanks, have a great day."
+"Hey, this is Sarah. I came across your roofing company on Google Maps—you've got great reviews, people clearly trust you. I liked your work so much that I actually built a fully functional website for your business as a gift, completely free. It's personalized with your business name, address, services, and reviews. I also recorded a quick walkthrough video hosted on Google Drive so you can see exactly what I built—completely safe to open. Give me a call back at this number, or text me your WhatsApp number or email and I'll send the video link right over. It'll take two minutes to look at, and it's completely yours. Thanks, have a great day."
 -> IMMEDIATELY after finishing this voicemail, call the `hangup_call` function tool to disconnect. Do NOT wait for a response.
 
 ### CASE 2: RECEPTIONIST / GATEKEEPER ANSWERS
 (e.g., "XYZ Roofing, how can I help you?")
-Say: "Hi, this is Alex. I built a free custom website for the owner as a gift—just need 2 minutes to let them know. Is the owner available?"
+Say: "Hi, this is Sarah. I built a free custom website for the owner as a gift—just need 2 minutes to let them know. Is the owner available?"
 - If they ask what it's about: "I built a custom website for the business as a free gift. Just need 2 minutes to confirm where to send the demo video."
 - If they say the owner is busy: "No problem—what's the best WhatsApp number or email to send the video walkthrough? I'll send it right over." -> If they give contact info, follow Data Extraction rules in STATE 3 and call `save_lead_data`, then thank them and call `hangup_call`.
 - If they still won't transfer: "Totally understand. I'll follow up. Thanks for your time." -> Call `hangup_call`.
@@ -131,12 +131,12 @@ Say: "Hi, this is Alex. I built a free custom website for the owner as a gift—
 
 ### CASE 3: THE OWNER / DIRECT LINE ANSWERS
 1. WARM OPENING (Initiated automatically when call connects):
-You start the call with a warm, polite check-in: "Hi there, this is Alex calling. Hope you're having a great day so far—do you have just a quick moment?"
+You start the call with a warm, polite check-in: "Hey there! This is Sarah calling—I think my phone line cut out when I tried calling yesterday, so I'm really sorry about that! Do you have just a quick moment?"
 -> STOP and wait for their response.
 
 2. THE PURPOSE (Natural, balanced, unhurried):
-Once they respond (e.g., "Sure, what's up?" or "Who is this?"), explain why you're calling smoothly and naturally:
-Say: "I appreciate that! I came across your roofing company online and really liked your reviews. So as a gift, I went ahead and built a complete, ready-to-use custom website for your business using your public info. Could I send you a quick 2-minute video walkthrough so you can take a look?"
+Once they respond (e.g., "Sure, what's up?" or "No problem, who is this?"), explain why you're calling smoothly and naturally:
+Say: "Thanks! So real quick, the reason I was reaching out is I came across your roofing company online and really liked your reviews. So as a gift, I went ahead and built a complete, ready-to-use custom website for your business using your public info. Could I send you a quick 2-minute video walkthrough so you can take a look?"
 -> STOP and wait for their response. Proceed to STATE 2.5 when they show interest.
 
 ### CASE 4: INBOUND CALLBACK ("I missed a call from this number" / "Someone called me from this number")
@@ -240,7 +240,7 @@ You MUST call `hangup_call` in these situations:
 """
 
 # ==============================================================================
-# PRICING PLANS REFERENCE (FOR ALEX'S INTERNAL KNOWLEDGE ONLY)
+# PRICING PLANS REFERENCE (FOR SARAH'S INTERNAL KNOWLEDGE ONLY)
 # These should NEVER be proactively mentioned. Only used as absolute last resort
 # if the prospect demands specific pricing and is about to hang up.
 #
@@ -291,7 +291,7 @@ You MUST call `hangup_call` in these situations:
 # THE OFFER: "I built a custom AI agent that answers questions, books jobs, and captures leads 24/7. It's like having a receptionist that never sleeps. I can install it on your existing site in 24 hours—no need to rebuild anything."
 # ==============================================================================
 
-INBOUND_PROMPT = """You are Alex, an assistant for a marketing agency specializing in helping US roofing contractors grow their online presence.
+INBOUND_PROMPT = """You are Sarah, an assistant for a marketing agency specializing in helping US roofing contractors grow their online presence.
 The user is calling you back — they either saw a missed call, listened to your voicemail, or spoke with you previously.
 
 # YOUR IDENTITY & MINDSET
@@ -308,7 +308,7 @@ The user is calling you back — they either saw a missed call, listened to your
 # OPENING & CONTEXT ADAPTATION (CHOOSE BASED ON HISTORY)
 If you have NO previous conversation history (`{MEMORY_CONTEXT}` is empty / completely new caller):
 Speak naturally and warmly without making strict assumptions about missed calls or websites:
-"Hey there! Thanks for calling, this is Alex. How can I help you today?"
+"Hey there! Thanks for calling, this is Sarah. How can I help you today?"
 - Once they tell you who they are or ask what your company does, naturally introduce yourself and explain that you build custom websites as a free gift for roofing contractors.
 
 If you HAVE previous conversation history (`PREVIOUS CONVERSATION HISTORY` section is present above):
@@ -518,13 +518,59 @@ def get_tts_model(cartesia_key: str = None):
     if effective_cartesia_key:
         os.environ["CARTESIA_API_KEY"] = effective_cartesia_key
         key_display = f"...{effective_cartesia_key[-8:]}" if len(effective_cartesia_key) > 12 else effective_cartesia_key
-        logging.info(f"🗣️ TTS: Cartesia Sonic Fast Voice (key: {key_display})")
-        return cartesia.TTS()
+        voice_id = os.getenv("CARTESIA_VOICE_ID")
+        if voice_id:
+            logging.info(f"🗣️ TTS: Cartesia Sonic Fast Voice (key: {key_display}, voice ID: {voice_id})")
+            return cartesia.TTS(voice=voice_id)
+        else:
+            logging.info(f"🗣️ TTS: Cartesia Sonic Fast Voice (key: {key_display}, voice: default)")
+            return cartesia.TTS()
     if os.getenv("AZURE_SPEECH_KEY") and os.getenv("AZURE_SPEECH_REGION"):
         logging.info("🗣️ TTS: Microsoft Azure Neural Voices")
         return azure.TTS()
     logging.warning("⚠️ TTS keys not set! Falling back to OpenAI TTS.")
     return openai.TTS()
+
+
+def lookup_csv_lead(phone_number: str) -> dict:
+    """Looks up lead information from roofers.csv by matching the phone number."""
+    if not phone_number:
+        return {}
+    clean_phone = "".join(c for c in phone_number if c.isdigit())
+    if not clean_phone:
+        return {}
+    
+    # Strip country code if it is US (+1) for internal lookup tolerance
+    if clean_phone.startswith("1") and len(clean_phone) > 10:
+        clean_phone = clean_phone[1:]
+        
+    csv_path = os.path.join(os.path.dirname(__file__), "roofers.csv")
+    if not os.path.exists(csv_path):
+        return {}
+        
+    try:
+        with open(csv_path, mode="r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                row_phone = row.get("PhoneNumber", "").strip()
+                clean_row_phone = "".join(c for c in row_phone if c.isdigit())
+                if clean_row_phone.startswith("1") and len(clean_row_phone) > 10:
+                    clean_row_phone = clean_row_phone[1:]
+                
+                if clean_phone == clean_row_phone:
+                    return {
+                        "company_name": row.get("CompanyName", "").strip(),
+                        "contact_name": row.get("ContactName", "").strip(),
+                        "city": row.get("City", "").strip(),
+                        "state": row.get("State", "").strip(),
+                        "competitor_website": row.get("CompetitorWebsite", "").strip(),
+                        "notes": row.get("Notes", "").strip()
+                    }
+    except Exception as e:
+        logging.error(f"❌ Error during CSV lead lookup: {e}")
+        
+    return {}
+
 
 # ==========================================
 # 4. AGENT WORKER ENTRYPOINT
@@ -614,6 +660,28 @@ async def entrypoint(ctx: JobContext):
     if alex_line_id:
         mark_line_busy(alex_line_id)
 
+    # Load lead details from CSV if found
+    lead_details_str = ""
+    lead_info = lookup_csv_lead(phone_number) if phone_number else {}
+    if lead_info:
+        # Override company name for logger & status printouts
+        if lead_info.get("company_name"):
+            company_name = lead_info["company_name"]
+            
+        lead_details_str = f"""# TARGET LEAD DETAILS (FROM LEADS CSV):
+- Business Name: {lead_info.get('company_name', 'Unknown')}
+- Contact Person: {lead_info.get('contact_name', 'Owner / Manager')}
+- Location: {lead_info.get('city', 'US')}, {lead_info.get('state', 'USA')}
+- Competitor's Website: {lead_info.get('competitor_website') or 'Not listed'}
+- Notes: {lead_info.get('notes') or 'None'}
+
+INSTRUCTION: Use these details naturally to customize your pitch. For example:
+- Mention their business name and their city/location.
+- If a competitor's website is listed, say: "I checked out some of your local competitors, like their website at {lead_info.get('competitor_website')}, and built this new custom design as a gift so you have an edge over them."
+- Address them by their contact person name if they confirm it.
+"""
+        logging.info(f"📊 Lead matched in CSV: {company_name} | Location: {lead_info.get('city')}, {lead_info.get('state')} | Competitor: {lead_info.get('competitor_website')}")
+
     logging.info(f"📱 Phone: {phone_number} | Company: {company_name} | Alex Line: {alex_line_id or 'Unknown'}")
 
     # Inbound vs. Outbound routing check based on SIP attributes, Job metadata, and Room name
@@ -654,11 +722,16 @@ async def entrypoint(ctx: JobContext):
             instructions = memory_context + "\n\n" + instructions
             logging.info(f"🧠 Found previous conversation history for {phone_number} (re-dial)")
 
+    # Inject CSV lead details if available
+    if lead_details_str:
+        instructions = lead_details_str + "\n\n" + instructions
+
     # Instantiate Agent with instructions and tools
     agent = Agent(
         instructions=instructions,
         tools=[save_lead_data, hangup_call],
     )
+
 
     # Instantiate Voice Session with STT, LLM, and TTS models (using rotated API keys)
     session = AgentSession(
@@ -738,11 +811,12 @@ async def entrypoint(ctx: JobContext):
     if is_auto_callback:
         await asyncio.sleep(1.2)
         logging.info("🗣️ AI initiating auto-callback conversation...")
-        session.say("Hi there, this is Alex calling right back! I saw we just missed a call from your number a few minutes ago while all our lines were busy—hope you're having a great day! Do you have just a quick moment?")
+        session.say("Hi there, this is Sarah calling right back! I saw we just missed a call from your number a few minutes ago while all our lines were busy—hope you're having a great day! Do you have just a quick moment?")
     elif not is_inbound:
         await asyncio.sleep(1.2)  # Short natural pause before speaking
         logging.info("🗣️ AI initiating outbound conversation...")
-        session.say("Hi there, this is Alex calling. Hope you're having a great day so far—do you have just a quick moment?")
+        session.say("Hey there! This is Sarah calling—I think my phone line cut out when I tried calling yesterday, so I'm really sorry about that! Do you have just a quick moment?")
+
 
 if __name__ == "__main__":
     cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint, agent_name="roofer_agent"))

@@ -62,11 +62,14 @@ async def trigger_call(
     if is_auto_callback:
         room_name = f"call_callback_{uuid.uuid4().hex[:8]}"
         metadata = f"auto_callback{line_id_str}"
-        logging.info(f"⚡ Triggering AUTO-CALLBACK to missed caller {company_name} ({phone_number}) via {line.get('display_name', 'Trunk')} in Room: {room_name}...")
+        display_name = line.get('display_name', 'Trunk') if line else 'Trunk'
+        logging.info(f"⚡ Triggering AUTO-CALLBACK to missed caller {company_name} ({phone_number}) via {display_name} in Room: {room_name}...")
     else:
         room_name = f"call_roofer_{uuid.uuid4().hex[:8]}"
         metadata = f"outbound{line_id_str}"
-        logging.info(f"📲 Triggering outbound call to {company_name} ({phone_number}) via {line.get('display_name', 'Trunk')} in Room: {room_name}...")
+        display_name = line.get('display_name', 'Trunk') if line else 'Trunk'
+        logging.info(f"📲 Triggering outbound call to {company_name} ({phone_number}) via {display_name} in Room: {room_name}...")
+
     
     participant_identity = f"roofer_{phone_number.replace('+', '')}"
     
@@ -83,13 +86,52 @@ async def trigger_call(
     try:
         if line:
             mark_line_busy(line["id"])
+            
+        # Explicitly dispatch the salesperson voice agent to the room
+        from livekit.api import agent_dispatch_service
+        try:
+            dispatch_req = agent_dispatch_service.CreateAgentDispatchRequest(
+                agent_name="roofer_agent",
+                room=room_name,
+            )
+            await lkapi.agent_dispatch.create_dispatch(dispatch_req)
+            logging.info(f"🎭 Dispatched 'roofer_agent' to Room: {room_name}")
+        except Exception as dispatch_err:
+            logging.warning(f"⚠️ Could not create explicit dispatch for roofer_agent: {dispatch_err}")
+
         res = await lkapi.sip.create_sip_participant(req)
         logging.info(f"✅ Call connected! Participant ID: {res.participant_id} | Room: {room_name}")
         return True, room_name
+
     except Exception as e:
         logging.error(f"❌ Failed to connect call to {phone_number}: {e}")
         return False, None
 
+
+def update_csv_status(csv_path: str, phone_number: str, new_status: str):
+    """Updates the Status column for a matching PhoneNumber in the CSV file."""
+    if not csv_path or not phone_number or not os.path.exists(csv_path):
+        return
+    try:
+        temp_rows = []
+        updated = False
+        with open(csv_path, mode="r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            fieldnames = reader.fieldnames
+            for row in reader:
+                if row.get("PhoneNumber", "").strip() == phone_number:
+                    row["Status"] = new_status
+                    updated = True
+                temp_rows.append(row)
+        
+        if updated:
+            with open(csv_path, mode="w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(temp_rows)
+            logging.info(f"💾 Updated {phone_number} status to '{new_status}' in {os.path.basename(csv_path)}")
+    except Exception as e:
+        logging.error(f"❌ Failed to update CSV status for {phone_number}: {e}")
 
 async def process_queue(lkapi: api.LiveKitAPI, trunk_id: str = None, delay: int = 15):
     """Checks for pending callbacks (missed inbound calls) and scheduled retries, and dials them using rotating lines."""
@@ -102,9 +144,14 @@ async def process_queue(lkapi: api.LiveKitAPI, trunk_id: str = None, delay: int 
     for item in pending:
         # Get next available line
         line = get_next_available_line()
-        if not line and not trunk_id:
-            logging.warning("⚠️ All phone lines are currently busy or cooling down! Stopping queue processing for now.")
-            break
+        if not line:
+            # Wait until at least one line is available
+            while not line:
+                logging.info("⏳ Queue worker: All phone lines busy/cooling. Waiting 5s...")
+                await asyncio.sleep(5)
+                line = get_next_available_line()
+
+
 
         q_id = item.get("id", "")
         phone = item.get("phone_number", "")
@@ -188,6 +235,17 @@ async def main():
 
         logging.info(f"📊 Found {len(rows)} target contractors. Starting multi-line outbound campaign across 3 rotating numbers...")
         
+        active_tasks = []
+
+        async def run_call_task(line_to_use, phone, company, contact):
+            success, room_name = await trigger_call(lkapi, trunk_id, phone, company, contact, line=line_to_use)
+            if not success:
+                logging.warning(f"⚠️ Call to {company} failed/busy/no-answer. Adding to retry queue...")
+                add_to_queue(phone, company, reason="outbound_busy_or_no_answer", queue_type="retry")
+                if line_to_use:
+                    from phone_lines import mark_line_available
+                    mark_line_available(line_to_use["id"], start_cooldown=False)
+
         for i, row in enumerate(rows, 1):
             # Check for any new priority callbacks (missed inbound calls) between outbound dials!
             if args.auto_queue:
@@ -209,21 +267,24 @@ async def main():
             # Wait until at least one line is available
             line = get_next_available_line()
             while not line and trunk_id == "auto":
+                active_tasks = [t for t in active_tasks if not t.done()]
                 logging.info("⏳ All phone lines currently busy or cooling down. Waiting 5s...")
                 await asyncio.sleep(5)
                 line = get_next_available_line()
 
-            logging.info(f"\n--- 📞 DIALING [{i}/{len(rows)}] {company} ---")
-            success, room_name = await trigger_call(lkapi, trunk_id, phone, company, contact, line=line)
+            logging.info(f"\n--- 📲 SPAWNING CONCURRENT DIAL [{i}/{len(rows)}] {company} ---")
+            update_csv_status(args.csv, phone, "called")
+            task = asyncio.create_task(run_call_task(line, phone, company, contact))
+            active_tasks.append(task)
+
             
-            if success:
-                logging.info(f"⏳ Waiting {args.delay} seconds before dialing next contractor...")
-                await asyncio.sleep(args.delay)
-            else:
-                logging.warning("⚠️ Call failed/busy/no-answer. Adding to auto-retry queue...")
-                add_to_queue(phone, company, reason="outbound_busy_or_no_answer", queue_type="retry")
-                await asyncio.sleep(5)
-                
+            logging.info(f"⏳ Waiting {args.delay} seconds before spawning next call...")
+            await asyncio.sleep(args.delay)
+            
+        if active_tasks:
+            logging.info("⏳ Waiting for all remaining active calls to finish...")
+            await asyncio.gather(*active_tasks, return_exceptions=True)
+
         logging.info("\n✅ Outbound dialer campaign run completed!")
         if args.auto_queue:
             logging.info("🔍 Final pass processing any remaining queued retries/callbacks...")
