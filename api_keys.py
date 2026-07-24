@@ -62,8 +62,12 @@ def _load_keys(force_reload: bool = False) -> dict:
                 logging.error(f"❌ Failed to parse API_KEYS_JSON env var: {env_err}")
 
     if not os.path.exists(KEYS_PATH):
-        logging.error(f"❌ API keys file not found: {KEYS_PATH}")
-        return {"gladia": [], "cartesia": []}
+        gladia_env = os.environ.get("GLADIA_API_KEY")
+        cartesia_env = os.environ.get("CARTESIA_API_KEY")
+        gladia_list = [{"key": gladia_env, "email": "env", "status": "active", "exhausted_until": None}] if gladia_env else []
+        cartesia_list = [{"key": cartesia_env, "email": "env", "status": "active", "exhausted_until": None}] if cartesia_env else []
+        return {"gladia": gladia_list, "cartesia": cartesia_list}
+
 
     mtime = os.path.getmtime(KEYS_PATH)
     if _key_cache and mtime == _key_cache_mtime and not force_reload:
