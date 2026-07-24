@@ -46,8 +46,20 @@ _key_cache_mtime = 0
 
 
 def _load_keys(force_reload: bool = False) -> dict:
-    """Loads API keys from api_keys.json with file-change caching."""
+    """Loads API keys from api_keys.json or API_KEYS_JSON env var with caching."""
     global _key_cache, _key_cache_mtime
+
+    # If api_keys.json does not exist on disk, check if provided via environment variable
+    if not os.path.exists(KEYS_PATH):
+        env_keys_json = os.environ.get("API_KEYS_JSON") or os.environ.get("API_KEYS_JSON_CONTENT")
+        if env_keys_json:
+            try:
+                data = json.loads(env_keys_json)
+                with open(KEYS_PATH, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                logging.info(f"💾 Initialized api_keys.json from environment variable API_KEYS_JSON")
+            except Exception as env_err:
+                logging.error(f"❌ Failed to parse API_KEYS_JSON env var: {env_err}")
 
     if not os.path.exists(KEYS_PATH):
         logging.error(f"❌ API keys file not found: {KEYS_PATH}")
@@ -65,6 +77,7 @@ def _load_keys(force_reload: bool = False) -> dict:
     except Exception as e:
         logging.error(f"❌ Failed to load API keys: {e}")
         return {"gladia": [], "cartesia": []}
+
 
 
 def _save_keys(data: dict):
